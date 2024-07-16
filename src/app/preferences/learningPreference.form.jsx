@@ -6,44 +6,19 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function LearningPreferenceForm() {
+export default function LearningPreferenceForm({ questions, answersInit }) {
     const { toast } = useToast();
     const [isFormValid, setIsFormValid] = useState(false);
-    const [questions, setQuestions] = useState([]);
-    const [answers, setAnswers] = useState({});
+    const [answers, setAnswers] = useState(answersInit);
 
-    useEffect(() => {
-        fetchQuestions();
-    }, []);
 
     useEffect(() => {
         if (questions.length > 0) {
             const allQuestionsAnswered = questions.every(q => answers[q.id] !== undefined);
             setIsFormValid(allQuestionsAnswered);
         }
-    }, [answers, questions]);
+    }, []);
 
-    const fetchQuestions = async () => {
-        try {
-            const response = await fetch('/api/questionnaire');
-            if (!response.ok) {
-                throw new Error('Failed to fetch questions');
-            }
-            const data = await response.json();
-            setQuestions(data);
-            // Initialize answers state
-            const initialAnswers = data.reduce((acc, q) => ({ ...acc, [q.id]: '' }), {});
-            setAnswers(initialAnswers);
-        } catch (error) {
-            console.error('Error fetching questions:', error);
-            toast({
-                title: "Error",
-                description: "Failed to load questions. Please refresh the page.",
-                variant: "destructive",
-                duration: 5000,
-            });
-        }
-    };
 
     const handleChange = (question, value) => {
         setAnswers(prev => ({ ...prev, [question]: value }));
